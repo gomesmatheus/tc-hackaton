@@ -1,0 +1,10 @@
+coverage:
+  precision: 2
+  round: down
+  threshold: 80
+
+ignore:
+  - cmd/myapp/main.go
+  - domain/*
+  - infraestructure/database/*
+  - infraestructure/persistence/postgres_repository.go
