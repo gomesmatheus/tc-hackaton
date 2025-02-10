@@ -12,7 +12,8 @@ import (
 const maxUploadSize = 10 << 20 // 10MB
 
 type VideoHandler struct {
-	Service port.VideoService
+	Service        port.VideoService
+	UserRepository port.UserPort
 }
 
 func (h *VideoHandler) GenerateVideoFrames(w http.ResponseWriter, r *http.Request) {
@@ -26,8 +27,18 @@ func (h *VideoHandler) GenerateVideoFrames(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Missing owner_id query parameter", http.StatusBadRequest)
 		return
 	}
+	valid, err := h.UserRepository.ValidateToken(r.Header.Get("Authorization"), ownerID)
+	if err != nil {
+		http.Error(w, "Error validating token", http.StatusInternalServerError)
+		fmt.Println("Validate token error:", err)
+		return
+	}
+	if !valid {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
 
-	err := r.ParseMultipartForm(maxUploadSize)
+	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
 		http.Error(w, "Error parsing form data", http.StatusBadRequest)
 		fmt.Println("Parse error:", err)
@@ -54,6 +65,17 @@ func (h *VideoHandler) GetZips(w http.ResponseWriter, r *http.Request) {
 	ownerID := r.URL.Query().Get("owner_id")
 	if ownerID == "" {
 		http.Error(w, "Missing owner_id query parameter", http.StatusBadRequest)
+		return
+	}
+
+	valid, err := h.UserRepository.ValidateToken(r.Header.Get("Authorization"), ownerID)
+	if err != nil {
+		http.Error(w, "Error validating token", http.StatusInternalServerError)
+		fmt.Println("Validate token error:", err)
+		return
+	}
+	if !valid {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
 
@@ -84,6 +106,17 @@ func (h *VideoHandler) DownloadZip(w http.ResponseWriter, r *http.Request) {
 	ownerID := r.URL.Query().Get("owner_id")
 	if ownerID == "" {
 		http.Error(w, "Missing owner_id query parameter", http.StatusBadRequest)
+		return
+	}
+
+	valid, err := h.UserRepository.ValidateToken(r.Header.Get("Authorization"), ownerID)
+	if err != nil {
+		http.Error(w, "Error validating token", http.StatusInternalServerError)
+		fmt.Println("Validate token error:", err)
+		return
+	}
+	if !valid {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
 

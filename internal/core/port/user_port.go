@@ -1,5 +1,5 @@
 package port
 
 type UserPort interface {
-	ValidateToken(token string) (string, error)
+	ValidateToken(token string, ownerId string) (bool, error)
 }

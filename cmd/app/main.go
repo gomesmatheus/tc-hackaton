@@ -12,18 +12,20 @@ import (
 )
 
 func main() {
-	// db, err := config.NewPostgresDb("postgres://postgres:123@postgres-db:5432/postgres")
-	db, err := config.NewPostgresDb("postgres://postgres:123@localhost:5432/postgres")
+	db, err := config.NewPostgresDb("postgres://postgres:123@zip-db:5432/postgres")
+	// db, err := config.NewPostgresDb("postgres://postgres:123@localhost:5432/postgres")
 	if err != nil {
 		log.Fatal("Error initializing database", err)
 	}
 
 	s3 := repository.NewS3Repository("fiap-hackaton")
+	userRepository := repository.NewUserRepository()
 
 	repository := repository.NewPostgresRepository(db)
 	videoUseCase := usecase.NewVideoUseCase(repository, s3)
 	videoHandler := http_handler.VideoHandler{
-		Service: videoUseCase,
+		Service:        videoUseCase,
+		UserRepository: userRepository,
 	}
 
 	http.HandleFunc("/video", videoHandler.GenerateVideoFrames)

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zip-db
+spec:
+  selector:
+    matchLabels:
+      app: zip-db
+  template:
+    metadata:
+      labels:
+        app: zip-db
+    spec:
+      containers:
+      - name: zip-db
+        image: postgres:alpine3.19
+        env:
+        - name: POSTGRES_HOST
+          value: "zip-db"
+        - name: POSTGRES_PASSWORD
+          value: "123"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_DB
+          value: "postgres"
+        ports:
+        - containerPort: 5432
